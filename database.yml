@@ -1,11 +1,11 @@
 ---
 development:
   dialect: "mysql"
-  database: "api_auth_development"
+  database: "uamapp"
   host: "localhost"
   port: "3306"
   user: "root"
-  password: "root"
+  password: "Uassistme.123"
 
 test:
   dialect: "mysql"
