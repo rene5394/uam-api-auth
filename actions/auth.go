@@ -33,13 +33,13 @@ func AuthenticateHandler(c buffalo.Context) error {
 		return c.Render(http.StatusUnauthorized, r.JSON(map[string]string{"message": "Wrong Password!"}))
 	}
 
-	token, err := generateJWT(user)
+	jwt, err := generateJWT(user)
 
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": err.Error()}))
 	}
 
-	return c.Render(http.StatusOK, r.JSON(token))
+	return c.Render(http.StatusOK, r.JSON(jwt))
 }
 
 func checkPasswordHash(password, hash string) bool {
@@ -49,13 +49,11 @@ func checkPasswordHash(password, hash string) bool {
 }
 
 func generateJWT(user models.User) (string, error) {
-	JWTKey, err := envy.MustGet("JWT_KEY")
+	jwtKey, err := envy.MustGet("JWT_KEY")
 
-	if JWTKey == "" {
+	if jwtKey == "" {
 		return "", err
 	}
-
-	signingKey := []byte(JWTKey)
 
 	claims := jwt.MapClaims{}
 	claims["id"] = user.ID
@@ -64,7 +62,7 @@ func generateJWT(user models.User) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString(signingKey)
+	tokenString, err := token.SignedString([]byte(jwtKey))
 
 	if err != nil {
 		return "", err
