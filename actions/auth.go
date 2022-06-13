@@ -3,6 +3,7 @@ package actions
 import (
 	"api_auth/dtos"
 	"api_auth/models"
+	"api_auth/repositories"
 	"api_auth/utils"
 	"net/http"
 
@@ -17,16 +18,14 @@ func AuthenticateHandler(c buffalo.Context) error {
 	}
 
 	user := models.User{}
-	query := models.DB.Where("email = ?", auth.Email).Where("status_id = ?", 1)
-	err := query.First(&user)
+	err := repositories.FindUserByEmail(&user, auth.Email)
 
 	if err != nil {
 		return c.Render(http.StatusNotFound, r.JSON(map[string]string{"message": "User not found or deactivated!"}))
 	}
 
 	employee := models.Employee{}
-	query = models.DB.Where("user_id = ?", user.ID)
-	err = query.First(&employee)
+	err = repositories.FindEmployeeByUserID(&employee, user.ID)
 
 	if err != nil {
 		return c.Render(http.StatusUnauthorized, r.JSON(map[string]string{"message": "User is not an employee!"}))
