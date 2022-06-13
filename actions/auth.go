@@ -24,6 +24,14 @@ func AuthenticateHandler(c buffalo.Context) error {
 		return c.Render(http.StatusNotFound, r.JSON(map[string]string{"message": "User not found or deactivated!"}))
 	}
 
+	employee := models.Employee{}
+	query = models.DB.Where("user_id = ?", user.ID)
+	err = query.First(&employee)
+
+	if err != nil {
+		return c.Render(http.StatusUnauthorized, r.JSON(map[string]string{"message": "User is not an employee!"}))
+	}
+
 	matchPassword := utils.CheckPasswordHash(auth.Password, user.Password)
 
 	if !matchPassword {
